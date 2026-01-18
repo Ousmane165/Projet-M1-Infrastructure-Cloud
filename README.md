@@ -37,19 +37,41 @@ L’architecture cible repose sur :
 - **Cloud provider** : AWS
 - **Infrastructure as Code** : Terraform
 - **Monitoring** : CloudWatch
-- **Visualisation** : Grafana (local)
+- **Visualisation** : Grafana
 - **Versioning** : Git
 
 ---
 
 ## 5. Organisation du projet
 
-terraform/
-docs/
-├─ schema_Infra.png
-├─ JOURNAL.md
-README.md
-PLAN.md
+Projet-M1-Infrastructure-Cloud/
+├── docs/
+│   ├── JOURNAL.md
+│   ├── Projets Module Infrastructure Cloud.md
+│   └── schema_infra.png           
+│
+├── grafana/
+│   └── (à mettre en plce)
+│
+├── terraform/
+│   ├── .terraform/                
+│   ├── .terraform.lock.hcl        
+│   ├── cloudwatch_alarms.tf       
+│   ├── cloudwatch_dashboard.tf    
+│   ├── main.tf                    
+│   ├── outputs.tf                 
+│   ├── providers.tf               
+│   ├── sns.tf                     
+│   ├── terraform.tfstate          
+│   ├── terraform.tfstate.backup   
+│   ├── terraform.tfvars           
+│   ├── variables.tf               
+│   └── versions.tf                
+│
+├── .gitignore                     
+├── PLAN.md                        
+└── README.md                      
+
 
 ---
 
@@ -69,22 +91,58 @@ PLAN.md
 - terraform apply
 - terraform destroy
 
-## 8. Scalabilité et tests
+Les commandes Terraform sont exécutées depuis le dossier terraform/.
 
-L’infrastructure met en œuvre un mécanisme de **scalabilité automatique** basé sur les services natifs AWS.
+---
 
-### Principe retenu
-- Utilisation d’un **Launch Template** pour définir les instances EC2
-- Déploiement d’un **Auto Scaling Group (ASG)** :
-  - Capacité minimale : 1 instance
-  - Capacité maximale : 2 instances
-- Politique de scaling basée sur la **charge CPU moyenne du groupe**
+## 8. Scalabilité et observabilité
 
-### Tests réalisés
-- Génération d’une charge CPU artificielle sur les instances
-- Observation du **scale-out automatique** (création d’une seconde instance)
-- Validation du comportement via :
-  - Auto Scaling Group (Activity History)
-  - CloudWatch (métriques CPU)
+### Scalabilité (Auto Scaling)
 
-Les tests ont permis de valider le bon fonctionnement de la scalabilité sans intervention manuelle !
+L’infrastructure met en œuvre une **scalabilité horizontale automatique** basée sur AWS Auto Scaling.
+
+Les éléments suivants ont été implémentés via Terraform :
+
+- Launch Template EC2 (Amazon Linux 2023, t3.micro)
+- Auto Scaling Group :
+  - Capacité minimale : 1
+  - Capacité maximale : 2
+  - Capacité désirée : 1
+- Politique de scaling :
+  - Target Tracking basé sur la **moyenne CPU**
+  - Seuil cible configurable via variable Terraform
+
+Des tests de montée en charge CPU ont été réalisés afin de valider :
+- Le déclenchement automatique du scale-out
+- La création dynamique de nouvelles instances EC2
+- La cohérence entre métriques CloudWatch et comportement de l’ASG
+
+### Observabilité (CloudWatch & Alerting)
+
+L’observabilité de l’infrastructure repose sur AWS CloudWatch et a été intégralement définie via Terraform.
+
+Les composants suivants ont été mis en place :
+
+- Alarmes CloudWatch :
+  - Alarme CPU élevée sur l’Auto Scaling Group
+  - Seuil configurable (par défaut : 60 %)
+  - Actions associées : notifications SNS
+- Notifications :
+  - Topic SNS dédié aux alertes
+  - Envoi des alertes par email
+- Dashboard CloudWatch :
+  - CPU moyenne de l’ASG
+  - Capacité désirée et instances en service
+  - Instances en attente et en terminaison
+  - État de l’alarme CPU
+
+L’utilisation de Terraform permet de garantir la **recréation automatique du dashboard et des alarmes** après destruction complète de l’infrastructure.
+
+---
+
+## 9. État du projet
+
+- Infrastructure : validée
+- Scalabilité : fonctionnelle
+- Observabilité : fonctionnelle
+- Reproductibilité : garantie via Terraform

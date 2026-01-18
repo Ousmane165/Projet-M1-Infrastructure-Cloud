@@ -1,137 +1,84 @@
 # Journal de projet – Projet M1 Cloud
 
-Ce document retrace l’évolution du projet, les décisions prises et les étapes validées au fil de l’avancement du projet.
+## Phase 1 – Configuration du compte AWS
+
+- Création d’un compte AWS personnel
+- Sécurisation du compte root avec MFA
+- Création d’un utilisateur IAM dédié (`terraform-admin`)
+- Configuration de l’AWS CLI avec un profil spécifique (`perso`)
+- Vérification de l’identité via `aws sts get-caller-identity`
+- Choix de la région `eu-west-3 (Paris)`
+
+Objectif : disposer d’un environnement AWS stable et sans contraintes de sandbox.
 
 ---
 
-## Phase 1 — Mise en place des fondations
+## Phase 2 – Validation Terraform & première instance EC2
 
-### Objectifs
-- Valider l’accès AWS
-- Configurer l’environnement local
-- Déployer une première ressource via Terraform
-
-### Environnement
-- OS : Windows
-- Shell : Git Bash
-- Outils :
+- Initialisation du projet Terraform
+- Déploiement d’une première instance EC2 de test
+- Validation de la cohérence :
   - Terraform
   - AWS CLI
-  - Git
+  - Console AWS
 
-### AWS
-- Compte AWS personnel
-- Région : eu-west-3
-- Authentification :
-  - Utilisateur IAM : `terraform-admin`
-  - MFA activé sur le compte root
-  - Profil AWS CLI : `perso`
-
-Commande de validation : aws sts get-caller-identity --profile perso
-
-### Initialisation Terraform
-Arborescence initiale :
-terraform/
-├─ main.tf
-├─ providers.tf
-├─ versions.tf
-├─ variables.tf
-├─ outputs.tf
-
-
-Choix réalisés :
-- Provider AWS officiel (hashicorp/aws)
-- Région définie par variable
-- Utilisation du VPC par défaut
-- Tagging basé sur le projet Projet M1 Cloud
-
-### Déploiement de test
-Ressources créées :
-- 1 Security Group
-- 1 instance EC2 de test
-    - Type : t3.micro
-    - AMI : Amazon Linux 2023
-    - IP publique attribuée
-
-Commandes utilisées :
-- terraform init
-- terraform plan
-- terraform apply
-
-Résultat :
-- Déploiement sans erreur
-- Instance EC2 visible dans la console AWS
-- Instance en état Running
-
-### Validation de la phase
-Cette phase a permis de :
-- Valider Terraform avec AWS
-- Vérifier la cohérence AWS CLI / Terraform / Console
-- Poser un socle technique fonctionnel
-
-**Phase 1 validée !**
+Cette phase a permis de valider l’accès AWS, le provider et le workflow IaC.
 
 ---
 
-## Phase 2 — Mise en place de la scalabilité
+## Phase 3 – Mise en place de la scalabilité
 
-### Objectifs
-- Mettre en place une infrastructure capable de s’adapter automatiquement à la charge
-- Valider le fonctionnement d’un Auto Scaling Group sur AWS
-- Tester la montée en charge dans des conditions réelles
+- Création d’un Launch Template EC2
+- Mise en place d’un Auto Scaling Group
+- Définition des capacités min / max / desired
+- Ajout d’une politique de scaling basée sur la CPU moyenne
+- Validation du déclenchement de l’alarme CPU associée au scale-out
 
----
+### Tests réalisés
+- Génération artificielle de charge CPU via AWS Systems Manager (Run Command)
+- Observation de la montée de charge dans CloudWatch
+- Déclenchement automatique du scale-out
+- Création d’une nouvelle instance EC2 par l’ASG
 
-### Configuration réalisée
-
-#### Infrastructure
-- Utilisation du **VPC par défaut**
-- Instances EC2 basées sur **Amazon Linux 2023**
-- Type d’instance : `t3.micro`
-- Sécurité :
-  - Accès HTTP (port 80)
-  - Aucun accès SSH (sécurité renforcée)
-
-#### Scalabilité
-- Création d’un **Launch Template**
-- Mise en place d’un **Auto Scaling Group** :
-  - min = 1
-  - max = 2
-  - desired = 1
-- Politique de scaling :
-  - Type : Target Tracking
-  - Métrique : `ASGAverageCPUUtilization`
-  - Cible : 50 %
+Résultat :  
+La scalabilité horizontale fonctionne comme attendu.
 
 ---
 
-### Accès et automatisation (SSM)
+## Phase 4 – Observabilité et alerting
 
-Afin d’éviter l’usage du SSH, les instances EC2 sont gérées via **AWS Systems Manager (SSM)** :
-- Création d’un rôle IAM dédié aux instances EC2
-- Attachement de la policy `AmazonSSMManagedInstanceCore`
-- Accès aux instances via **Run Command**
+- Création d’un topic SNS pour les alertes
+- Configuration d’une alarme CloudWatch sur la CPU moyenne de l’ASG
+- Réception effective des notifications par email
+- Création d’un dashboard CloudWatch via Terraform
 
-Cette approche est conforme aux bonnes pratiques AWS en matière de sécurité.
+Le dashboard inclut :
+- CPU moyenne de l’ASG
+- Capacité désirée vs instances en service
+- Instances en attente / terminaison
+- État des alarmes CPU
 
 ---
 
-### Tests de scalabilité
+## Phase 5 – Nettoyage et reproductibilité
 
-#### Méthodologie
-- Génération d’une charge CPU artificielle à l’aide de commandes exécutées via SSM
-- Commande exécutée à distance sur les instances de l’ASG :
-`stress --cpu 2 --timeout 300`
+- Destruction complète de l’infrastructure via `terraform destroy`
+- Validation que :
+  - Aucun coût inutile n’est engagé
+  - L’infrastructure est entièrement recréable
+  - Les dashboards et alarmes sont gérés par Terraform
 
-#### Observations
-- Augmentation de la charge CPU sur l’instance existante
-- Déclenchement automatique de la politique de scaling
-- Création d’une seconde instance EC2
-- Répartition des instances sur différentes zones de disponibilité
+---
 
-#### Validation :
-- Scale-out observé sans intervention manuelle
-- Événements visibles dans l’Activity History de l’ASG
-- Corrélation avec les métriques CloudWatch
+## Bilan intermédiaire
 
-Statut de la phase 2 : validé !
+À ce stade :
+- La scalabilité est fonctionnelle
+- L’observabilité est opérationnelle
+- Le projet respecte les principes d’Infrastructure as Code
+- Les coûts sont maîtrisés
+
+Le projet est prêt pour :
+- Finalisation de la documentation
+- Présentation orale
+- Extensions futures (Grafana, logs avancés, etc.)
