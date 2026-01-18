@@ -1,4 +1,7 @@
-output "ec2_public_ip" {
-  description = "Adresse IP publique de l'instance EC2 de test"
-  value       = aws_instance.test.public_ip
+output "asg_name" {
+  value = aws_autoscaling_group.web.name
+}
+
+output "launch_template_id" {
+  value = aws_launch_template.web.id
 }
