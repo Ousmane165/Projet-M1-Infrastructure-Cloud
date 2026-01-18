@@ -1,5 +1,16 @@
-**/.terraform/*
-**/.terraform.lock.hcl
-**/crash.log
-**/crash.*.log
-**/*.tfstate.backup
+# Terraform - dossiers et fichiers générés
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+
+# Variables sensibles
+terraform/terraform.tfvars
+
+# Logs éventuels
+*.log
+
+# OS / éditeur
+.DS_Store
+Thumbs.db
+.vscode/
