@@ -45,3 +45,14 @@ variable "cpu_target" {
   description = "Cible CPU moyenne ASG (en %)"
   default     = 50
 }
+
+variable "alert_email" {
+  type        = string
+  description = "Email qui reçoit les alertes SNS."
+}
+
+variable "cpu_alarm_threshold" {
+  type        = number
+  description = "Seuil CPU (%) pour l'alarme CloudWatch."
+  default     = 60
+}
