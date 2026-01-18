@@ -68,3 +68,23 @@ PLAN.md
 - terraform plan
 - terraform apply
 - terraform destroy
+
+## 8. Scalabilité et tests
+
+L’infrastructure met en œuvre un mécanisme de **scalabilité automatique** basé sur les services natifs AWS.
+
+### Principe retenu
+- Utilisation d’un **Launch Template** pour définir les instances EC2
+- Déploiement d’un **Auto Scaling Group (ASG)** :
+  - Capacité minimale : 1 instance
+  - Capacité maximale : 2 instances
+- Politique de scaling basée sur la **charge CPU moyenne du groupe**
+
+### Tests réalisés
+- Génération d’une charge CPU artificielle sur les instances
+- Observation du **scale-out automatique** (création d’une seconde instance)
+- Validation du comportement via :
+  - Auto Scaling Group (Activity History)
+  - CloudWatch (métriques CPU)
+
+Les tests ont permis de valider le bon fonctionnement de la scalabilité sans intervention manuelle !

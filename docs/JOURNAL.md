@@ -73,8 +73,65 @@ Cette phase a permis de :
 
 ---
 
-## Phase 2 — Scalabilité
-Objectifs prévus :
-- Mise en place d’un Launch Template
-- Création d’un Auto Scaling Group
-- Politique de scaling basée sur la charge CPU
+## Phase 2 — Mise en place de la scalabilité
+
+### Objectifs
+- Mettre en place une infrastructure capable de s’adapter automatiquement à la charge
+- Valider le fonctionnement d’un Auto Scaling Group sur AWS
+- Tester la montée en charge dans des conditions réelles
+
+---
+
+### Configuration réalisée
+
+#### Infrastructure
+- Utilisation du **VPC par défaut**
+- Instances EC2 basées sur **Amazon Linux 2023**
+- Type d’instance : `t3.micro`
+- Sécurité :
+  - Accès HTTP (port 80)
+  - Aucun accès SSH (sécurité renforcée)
+
+#### Scalabilité
+- Création d’un **Launch Template**
+- Mise en place d’un **Auto Scaling Group** :
+  - min = 1
+  - max = 2
+  - desired = 1
+- Politique de scaling :
+  - Type : Target Tracking
+  - Métrique : `ASGAverageCPUUtilization`
+  - Cible : 50 %
+
+---
+
+### Accès et automatisation (SSM)
+
+Afin d’éviter l’usage du SSH, les instances EC2 sont gérées via **AWS Systems Manager (SSM)** :
+- Création d’un rôle IAM dédié aux instances EC2
+- Attachement de la policy `AmazonSSMManagedInstanceCore`
+- Accès aux instances via **Run Command**
+
+Cette approche est conforme aux bonnes pratiques AWS en matière de sécurité.
+
+---
+
+### Tests de scalabilité
+
+#### Méthodologie
+- Génération d’une charge CPU artificielle à l’aide de commandes exécutées via SSM
+- Commande exécutée à distance sur les instances de l’ASG :
+`stress --cpu 2 --timeout 300`
+
+#### Observations
+- Augmentation de la charge CPU sur l’instance existante
+- Déclenchement automatique de la politique de scaling
+- Création d’une seconde instance EC2
+- Répartition des instances sur différentes zones de disponibilité
+
+#### Validation :
+- Scale-out observé sans intervention manuelle
+- Événements visibles dans l’Activity History de l’ASG
+- Corrélation avec les métriques CloudWatch
+
+Statut de la phase 2 : validé !
