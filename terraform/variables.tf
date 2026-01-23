@@ -54,5 +54,5 @@ variable "alert_email" {
 variable "cpu_alarm_threshold" {
   type        = number
   description = "Seuil CPU (%) pour l'alarme CloudWatch."
-  default     = 60
+  default     = 20
 }
