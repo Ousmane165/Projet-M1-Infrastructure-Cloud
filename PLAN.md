@@ -75,27 +75,27 @@ Projet réalisé dans le cadre du module « Infrastructure Cloud ». Le rendu at
 
 ### Lot 0 — Initialisation
 
-- [ ]  Créer dépôt Git + README
-- [ ]  Définir arborescence (`terraform/`, `docs/`, `grafana/` si besoin)
-- [ ]  Définir conventions :
+- [X]  Créer dépôt Git + README
+- [X]  Définir arborescence (`terraform/`, `docs/`)
+- [X]  Définir conventions :
     - nommage ressources
     - variables Terraform
     - format commits (ex : `feat:`, `fix:`, `docs:`)
 
 ### Lot 1 — Infrastructure (Terraform)
 
-- [ ]  Provider + variables + outputs
-- [ ]  Réseau (si nécessaire) : VPC/Subnets/Routes (ou utilisation du default VPC)
-- [ ]  Sécurité : Security Groups + IAM minimal
-- [ ]  Compute : instance(s) EC2 (ou ASG si projet orienté scalabilité)
-- [ ]  Tests de déploiement : `terraform plan/apply/destroy`
+- [X]  Provider + variables + outputs
+- [X]  Réseau : VPC/Subnets/Routes (ou utilisation du default VPC)
+- [X]  Sécurité : Security Groups + IAM minimal
+- [X]  Compute : instance(s) EC2 (ou ASG si projet orienté scalabilité)
+- [X]  Tests de déploiement : `terraform plan/apply/destroy`
 - [ ]  Doc “how-to deploy”
 
 ### Lot 2 — Monitoring & Alerting (CloudWatch)
 
-- [ ]  Sélection des métriques clés (CPU, StatusCheckFailed, NetworkIn/Out, etc.)
-- [ ]  Création des alarmes CloudWatch (Terraform si possible)
-- [ ]  SNS topic + abonnement (email)
+- [X]  Sélection des métriques clés (CPU, StatusCheckFailed, NetworkIn/Out, etc.)
+- [X]  Création des alarmes CloudWatch (Terraform si possible)
+- [X]  SNS topic + abonnement (email)
 - [ ]  Runbook : “Que faire quand l’alarme X se déclenche ?”
 
 ### Lot 3 — Dashboards (Grafana)
@@ -110,12 +110,12 @@ Projet réalisé dans le cadre du module « Infrastructure Cloud ». Le rendu at
 
 ### Lot 4 — Qualité & Documentation
 
-- [ ]  README principal : objectifs, architecture, prérequis, déploiement
-- [ ]  `docs/` :
+- [X]  README principal : objectifs, architecture, prérequis, déploiement
+- [X]  `docs/` :
     - `ARCHITECTURE.md` (schéma + explications)
     - `RUNBOOK.md` (alertes, actions)
     - `DECISIONS.md` (choix et compromis)
-- [ ]  Vérifier reproductibilité (clean apply sur compte de test)
+- [X]  Vérifier reproductibilité (clean apply sur compte de test)
 
 
 ## 6) Jalons et livrables
